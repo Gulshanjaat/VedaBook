@@ -1,13 +1,11 @@
 const OpenAI = require("openai");
 
-const pdfModel =require("../../models/pdfModel");
+const pdfModel = require("../../models/pdfModel");
 const textModel = require("../../models/textModel");
-
-// const textModel =require("../../models/textModel");
+const userModel = require("../../models/users");
 
 const client = new OpenAI({
-  apiKey:
-    process.env.AZURE_OPENAI_API_KEY,
+  apiKey: process.env.AZURE_OPENAI_API_KEY,
 
   baseURL:
     `${process.env.AZURE_OPENAI_ENDPOINT}openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}`,
@@ -27,7 +25,15 @@ const chatWithAI = async (req, res) => {
 
   try {
 
-    const { message } = req.body;
+    const { userId, message } = req.body;
+
+    if (!userId) {
+
+      return res.status(400).json({
+        success: false,
+        message: "User ID required",
+      });
+    }
 
     if (!message) {
 
@@ -37,13 +43,31 @@ const chatWithAI = async (req, res) => {
       });
     }
 
+    // user check
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // token check
+    if (user.tokens <= 0) {
+
+      return res.status(403).json({
+        success: false,
+        message: "No tokens left. Please subscribe.",
+      });
+    }
+
     // get all pdfs
-    const pdfs =
-      await pdfModel.find();
+    const pdfs = await pdfModel.find();
 
     // get all texts
-    const texts =
-      await textModel.find();
+    const texts = await textModel.find();
 
     let allContent = "";
 
@@ -67,7 +91,7 @@ const chatWithAI = async (req, res) => {
         text.content;
     });
 
-    // openai
+    // OpenAI
     const response =
       await client.chat.completions.create({
 
@@ -84,7 +108,7 @@ You are an AI assistant.
 
 Answer ONLY from uploaded PDFs and texts.
 
-If answer not found then say:
+If answer is not found then say:
 "Answer not found"
 `,
           },
@@ -108,9 +132,18 @@ ${message}
     const aiMessage =
       response.choices[0].message.content;
 
+    // deduct 1 token
+    user.tokens -= 1;
+
+    await user.save();
+
     res.json({
       success: true,
+
       aiMessage,
+
+      remainingTokens:
+        user.tokens,
     });
 
   } catch (error) {

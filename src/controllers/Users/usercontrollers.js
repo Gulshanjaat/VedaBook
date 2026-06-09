@@ -25,13 +25,13 @@ const registerUser = async (req, res) => {
       return res.json({ message: "User already exists" });
     }
 
-   
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    let imageUrl = ""; 
+    let imageUrl = "";
 
-    
+
     if (req.file) {
       const uploadedImage = await imagekit.upload({
         file: req.file.buffer,
@@ -42,7 +42,7 @@ const registerUser = async (req, res) => {
       imageUrl = uploadedImage.url;
     }
 
-  
+
     const user = await usermodel.create({
       name,
       email,
@@ -112,6 +112,52 @@ const loginUser = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+
+  try {
+
+    const { userId, name } = req.body;
+
+    const user =
+      await usermodel.findById(userId);
+
+    if (!user) {
+
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (name) {
+      user.name = name;
+    }
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message:
+        "Profile updated successfully",
+
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        profilePic:
+          user.profilePic,
+      },
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 
 
 
@@ -132,7 +178,7 @@ const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    
+
     await sendmail(email, `Your OTP is ${otp}`);
 
     res.json({ message: "OTP sent successfully" });
@@ -186,8 +232,26 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const logoutUser = async (req, res) => {
+
+  try {
+
+    res.json({
+      success: true,
+      message: "Logout successful",
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 
 
 
-module.exports = { registerUser, loginUser, forgotPassword, verifyOtp, resetPassword  };
+
+module.exports = { registerUser, loginUser,updateUser, forgotPassword, verifyOtp, resetPassword,logoutUser };

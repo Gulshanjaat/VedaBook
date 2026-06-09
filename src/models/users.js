@@ -28,8 +28,12 @@ const userSchema = new mongoose.Schema(
       expires: 0,
     },
     profilePic: {
-      type: String, 
+      type: String,
       default: "",
+    },
+    tokens: {
+      type: Number,
+      default: 10,
     },
   },
   { timestamps: true }
