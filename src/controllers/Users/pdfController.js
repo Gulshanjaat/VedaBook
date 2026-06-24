@@ -7,6 +7,7 @@ const pdfModel = require("../../models/pdfModel");
 const uploadPDFs = async (req, res) => {
 
   try {
+    const { userId } = req.body;
 
     if (!req.files || req.files.length === 0) {
 
@@ -45,11 +46,16 @@ const uploadPDFs = async (req, res) => {
       const pdfDoc =
         await pdfModel.create({
 
-          fileName: file.originalname,
+          userId,
 
-          pdfUrl: uploadedFile.url,
+          fileName:
+            file.originalname,
+
+          pdfUrl:
+            uploadedFile.url,
 
           extractedText,
+
         });
 
       savedPDFs.push(pdfDoc);

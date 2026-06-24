@@ -3,6 +3,7 @@ const OpenAI = require("openai");
 const pdfModel = require("../../models/pdfModel");
 const textModel = require("../../models/textModel");
 const userModel = require("../../models/users");
+const chatModel = require("../../models/chatModel");
 
 const client = new OpenAI({
   apiKey: process.env.AZURE_OPENAI_API_KEY,
@@ -63,11 +64,17 @@ const chatWithAI = async (req, res) => {
       });
     }
 
-    // get all pdfs
-    const pdfs = await pdfModel.find();
 
-    // get all texts
-    const texts = await textModel.find();
+
+    const pdfs =
+      await pdfModel.find({
+        userId,
+      });
+
+    const texts =
+      await textModel.find({
+        userId,
+      });
 
     let allContent = "";
 
@@ -132,6 +139,18 @@ ${message}
     const aiMessage =
       response.choices[0].message.content;
 
+    await chatModel.create({
+
+      userId,
+
+      question:
+        message,
+
+      answer:
+        aiMessage,
+
+    });
+
     // deduct 1 token
     user.tokens -= 1;
 
@@ -157,4 +176,41 @@ ${message}
   }
 };
 
-module.exports = { chatWithAI };
+const getHistory =
+  async (req, res) => {
+
+    try {
+
+      const { userId } =
+        req.params;
+
+      const chats =
+        await chatModel.find({
+
+          userId,
+
+        })
+
+          .sort({
+            createdAt: -1,
+          });
+
+      res.json({
+
+        success: true,
+
+        chats,
+
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        success: false,
+        message:
+          error.message,
+      });
+    }
+  };
+
+module.exports = { chatWithAI,getHistory };

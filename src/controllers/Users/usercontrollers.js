@@ -51,13 +51,22 @@ const registerUser = async (req, res) => {
     });
 
     res.json({
-      message: "User Registered Successfully",
+
+      message:
+        "User Registered Successfully",
+
       user: {
+
         id: user._id,
+
         name: user.name,
+
         email: user.email,
-        profilePic: user.profilePic,
+
+        tokens: user.tokens,
+
       },
+
     });
 
   } catch (error) {
@@ -98,14 +107,28 @@ const loginUser = async (req, res) => {
 
 
     res.json({
+
       message: "Login Successful",
+
       token,
+
       user: {
+
         id: user._id,
+
         name: user.name,
+
         email: user.email,
+
+        tokens: user.tokens,
+
       },
-    });
+
+    })
+
+    
+
+    ;
 
   } catch (error) {
     res.json({ message: error.message });
@@ -254,4 +277,4 @@ const logoutUser = async (req, res) => {
 
 
 
-module.exports = { registerUser, loginUser,updateUser, forgotPassword, verifyOtp, resetPassword,logoutUser };
+module.exports = { registerUser, loginUser, updateUser, forgotPassword, verifyOtp, resetPassword, logoutUser };

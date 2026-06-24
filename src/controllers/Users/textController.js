@@ -32,7 +32,10 @@ const uploadText = async (req, res) => {
     const textDoc =
       await textModel.create({
 
+        userId,
+
         content,
+
       });
 
     res.json({

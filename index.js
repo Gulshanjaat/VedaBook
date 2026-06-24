@@ -5,7 +5,8 @@ const router = require("./src/routes/UserRouts/userrouts")
 const chatRouter = require("./src/routes/UserRouts/chatRoutes")
 const pdfRouter = require("./src/routes/UserRouts/pdfRouts")
 const textrouter = require("./src/routes/UserRouts/textRoutes")
-const psrouter = require("./src/routes/UserRouts/plan-subRouts")
+const planrouter = require("./src/routes/UserRouts/planRouts");
+const subscriptionrouter = require("./src/routes/UserRouts/subscriptionRouts");
 const PORT = 1010
 
 
@@ -17,9 +18,10 @@ app.use(cors({
 }));
 app.use("/api/user", router)
 app.use("/api/chat", chatRouter);
-app.use("/api/pdf", pdfRouter);
+app.use("/api/pdfs", pdfRouter);
 app.use("/api/text", textrouter);
-app.use( "/api/ps", psrouter);
+app.use( "/api/plan", planrouter);
+app.use("/api/subscription",subscriptionrouter)
 
 connectedDatabase()
 
