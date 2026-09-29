@@ -1,4 +1,6 @@
 const razorpay = require("../../config/razorpay");
+const userModel = require("../../models/users.js");
+const subscriptionModel = require("../../models/subscriptionModel.js");
 
 const Plan = require("../../models/planModel");
 
@@ -56,6 +58,7 @@ const createOrder =
 
 const crypto =
     require("crypto");
+
 
 const verifyPayment =
 async (req, res) => {

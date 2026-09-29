@@ -43,20 +43,21 @@ const uploadPDFs = async (req, res) => {
         });
 
       // save database
-      const pdfDoc =
-        await pdfModel.create({
+      const pdfDoc = await pdfModel.create({
 
-          userId,
+        userId,
 
-          fileName:
-            file.originalname,
+        fileName: file.originalname,
 
-          pdfUrl:
-            uploadedFile.url,
+        pdfUrl: uploadedFile.url,
 
-          extractedText,
+        imagekitFileId: uploadedFile.fileId,
 
-        });
+        fileSize: file.size,
+
+        extractedText,
+
+      });
 
       savedPDFs.push(pdfDoc);
     }
@@ -81,4 +82,57 @@ const uploadPDFs = async (req, res) => {
   }
 };
 
-module.exports = { uploadPDFs };
+
+
+const getUserPDFs = async (req, res) => {
+
+  try {
+
+    const { userId } = req.params;
+
+    if (!userId) {
+
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+
+    }
+
+    const pdfs = await pdfModel
+      .find({
+        userId,
+        isDeleted: false,
+      })
+      .select(
+        "_id fileName pdfUrl fileSize createdAt"
+      )
+      .sort({
+        createdAt: -1,
+      });
+
+    res.json({
+
+      success: true,
+
+      pdfs,
+
+    });
+
+  } catch (error) {
+
+    console.log("Get PDFs Error:", error);
+
+    res.status(500).json({
+
+      success: false,
+
+      message: error.message,
+
+    });
+
+  }
+
+};
+
+module.exports = { uploadPDFs,getUserPDFs };

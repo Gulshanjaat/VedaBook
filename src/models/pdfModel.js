@@ -1,19 +1,80 @@
-const mongoose = require("mongoose");
+const mongoose =
+require("mongoose");
 
-const pdfSchema = new mongoose.Schema(
-  {
-    fileName: String,
+const pdfSchema =
+new mongoose.Schema({
 
-    pdfUrl: String,
+fileName:{
 
-    extractedText: String,
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-  },
-  { timestamps: true }
+type:String,
+
+required:true,
+
+},
+
+pdfUrl:{
+
+type:String,
+
+required:true,
+
+},
+
+extractedText:{
+
+type:String,
+
+required:true,
+
+},
+
+imagekitFileId:{
+
+type:String,
+
+required:true,
+
+},
+
+fileSize:{
+
+type:Number,
+
+default:0,
+
+},
+
+userId:{
+
+type:mongoose.Schema.Types.ObjectId,
+
+ref:"User",
+
+required:true,
+
+},
+
+isDeleted:{
+
+type:Boolean,
+
+default:false,
+
+},
+
+},
+
+{
+
+timestamps:true,
+
+});
+
+module.exports=
+mongoose.model(
+
+"PDF",
+
+pdfSchema
+
 );
-
-module.exports = mongoose.model("PDF", pdfSchema);

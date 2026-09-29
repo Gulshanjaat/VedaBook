@@ -1,5 +1,6 @@
 const express = require("express");
-const { chatWithAI, getHistory } = require("../../controllers/Users/chatController");
+const { chatWithAI } = require("../../controllers/Users/chatController");
+const { getHistory } = require("../../controllers/Users/conversationController");
 
 const chatRouter = express.Router();
 

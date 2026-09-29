@@ -13,6 +13,19 @@ const sendmail = require("../../utils/mailer");
 
 const registerUser = async (req, res) => {
   try {
+
+     console.log("Headers:", req.headers["content-type"]);
+
+      console.log("Body:", req.body);
+
+      if (!req.body) {
+      return res.status(400).json({
+        success: false,
+        message: "req.body is undefined",
+      });
+    }
+
+    
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
@@ -49,64 +62,92 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
       profilePic: imageUrl,
     });
+   
 
-    res.json({
+   const token = jwt.sign(
+  {
+    id: user._id,
+    isAdmin: user.isAdmin,
+  },
+  process.env.JWT_SECRET,
+  {
+    expiresIn: "7d",
+  }
+);
 
-      message:
-        "User Registered Successfully",
-
-      user: {
-
-        id: user._id,
-
-        name: user.name,
-
-        email: user.email,
-
-        tokens: user.tokens,
-
-      },
-
-    });
+return res.status(201).json({
+  success: true,
+  message: "User Registered Successfully",
+  token,
+  user: {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    tokens: user.tokens,
+  },
+});
 
   } catch (error) {
-    res.json({ message: error.message });
-  }
+
+  console.log("Register Error:", error);
+
+  res.status(500).json({
+    success: false,
+    message: error.message,
+  });
+
+}
 };
 
 
 
 const loginUser = async (req, res) => {
   try {
+
     const { email, password } = req.body;
 
-
     if (!email || !password) {
-      return res.json({ message: "Email and Password required" });
+      return res.status(400).json({
+        success: false,
+        message: "Email and Password required",
+      });
     }
-
 
     const user = await usermodel.findOne({ email });
 
     if (!user) {
-      return res.json({ message: "Invalid Email or Password" });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Email or Password",
+      });
     }
 
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
+   
     if (!isMatch) {
-      return res.json({ message: "Invalid Email or Password" });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Email or Password",
+      });
     }
 
     const token = jwt.sign(
-      { id: user._id, isAdmin: user.isAdmin },
+      {
+        id: user._id,
+        isAdmin: user.isAdmin,
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      {
+        expiresIn: "7d",
+      }
     );
 
+    return res.status(200).json({
 
-    res.json({
+      success: true,
 
       message: "Login Successful",
 
@@ -124,14 +165,20 @@ const loginUser = async (req, res) => {
 
       },
 
-    })
-
-    
-
-    ;
+    });
 
   } catch (error) {
-    res.json({ message: error.message });
+
+    console.log(error);
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: error.message,
+
+    });
+
   }
 };
 

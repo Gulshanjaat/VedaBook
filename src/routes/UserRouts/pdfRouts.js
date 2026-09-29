@@ -1,12 +1,19 @@
 const express = require("express");
+const multer = require("multer");
 
 const pdfRouter = express.Router();
 
 const upload = require("../../utils/multer");
-const { uploadPDFs } = require("../../controllers/Users/pdfController");
-const multer = require("multer");
 
-// const { uploadPDF } = require("../controllers/pdfController");
+const {
+  uploadPDFs,
+  getUserPDFs,
+} = require("../../controllers/Users/pdfController");
+
+
+// ===============================
+// UPLOAD PDFs
+// ===============================
 
 pdfRouter.post(
   "/upload",
@@ -20,38 +27,57 @@ pdfRouter.post(
       function (err) {
 
         if (
-          err instanceof
-          multer.MulterError
+          err instanceof multer.MulterError
         ) {
 
           if (
-            err.code ===
-            "LIMIT_FILE_SIZE"
+            err.code === "LIMIT_FILE_SIZE"
           ) {
 
             return res.status(400).json({
+
               success: false,
 
               message:
                 "Your file is too large. Max size is 25MB",
+
             });
+
           }
+
         }
 
         if (err) {
 
           return res.status(400).json({
+
             success: false,
+
             message: err.message,
+
           });
+
         }
 
         next();
+
       }
     );
+
   },
 
   uploadPDFs
 );
+
+
+// ===============================
+// GET USER PDFs
+// ===============================
+
+pdfRouter.get(
+  "/user/:userId",
+  getUserPDFs
+);
+
 
 module.exports = pdfRouter;
