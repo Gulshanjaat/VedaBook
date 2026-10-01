@@ -15,7 +15,10 @@ const PORT = 1010
 const app = express()
 app.use(express.json())
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin:[ "http://localhost:5173",
+    "https://veda-book-frontend.vercel.app",
+
+  ],
   credentials: true,
 }));
 app.use("/api/user", router)
@@ -26,7 +29,7 @@ app.use("/api/plan", planrouter);
 app.use("/api/subscription", subscriptionrouter)
 app.use("/api/conversation", conversationRouter);
 app.use("/api/message", messageRouter);
-
+ 
 connectedDatabase()
 
 

@@ -18,7 +18,7 @@ const planSchema = new mongoose.Schema({
 
   tokens: {
     type: Number,
-    required: true,
+    required: true, 
   },
 });
 

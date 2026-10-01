@@ -7,7 +7,7 @@ const User = require("../../models/users");
 const createPlan = async (req, res) => {
     try {
 
-        const plan = await Plan.create(req.body);
+        const plan = await planModel.create(req.body);
 
         res.json({
             success: true,
